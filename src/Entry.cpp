@@ -3,28 +3,58 @@
 
 ll::Logger logger(PLUGIN_NAME);
 
-namespace my_plugin {
+namespace ItemName_Tag {
 
-std::unique_ptr<MyPlugin>& MyPlugin::getInstance() {
-    static std::unique_ptr<MyPlugin> instance;
+std::unique_ptr<ItemNameTag>& ItemNameTag::getInstance() {
+    static std::unique_ptr<ItemNameTag> instance;
     return instance;
 }
 
-bool MyPlugin::load() {
-    // Code for loading the plugin goes here.
+bool ItemNameTag::load() {
+    GMLIB::Mod::VanillaFix::setFixI18nEnabled();
     return true;
 }
 
-bool MyPlugin::enable() {
-    // Code for enabling the plugin goes here.
+bool ItemNameTag::enable() {
     return true;
 }
 
-bool MyPlugin::disable() {
-    // Code for disabling the plugin goes here.
+bool ItemNameTag::disable() {
     return true;
 }
 
-} // namespace my_plugin
+} // namespace ItemName_Tag
 
-LL_REGISTER_PLUGIN(my_plugin::MyPlugin, my_plugin::MyPlugin::getInstance());
+LL_REGISTER_PLUGIN(ItemName_Tag::ItemNameTag, ItemName_Tag::ItemNameTag::getInstance());
+
+LL_AUTO_TYPE_INSTANCE_HOOK(ACTickHook, ll::memory::HookPriority::Normal, ItemActor, &ItemActor::postNormalTick, void) {
+    origin();
+    auto item = this->item();
+    ll::service::getLevel()->forEachPlayer([&](Player& player) -> bool {
+        if (player.isSimulated()) return true;
+        SetActorDataPacket packet;
+        packet.mId = getRuntimeID();
+        // auto& player2 = (GMLIB_Player&)player;
+        // packet.mPackedItems.emplace_back(DataItem::create(
+        //     ActorDataIDs::Name,
+        //     item.getCustomName() == ""
+        //         ? I18nAPI::get(item.getDescriptionId(), {}, std::string(player2.getLanguageCode()))
+        //         : item.getCustomName()
+        // ));
+        packet.mPackedItems.emplace_back(DataItem::create(
+            ActorDataIDs::Name,
+            item.getCustomName() == "" ? I18nAPI::get(
+                                             item.getDescriptionId(),
+                                             {},
+                                             ll::service::getServerNetworkHandler()
+                                                 ->fetchConnectionRequest(player.getNetworkIdentifier())
+                                                 .mRawToken->mDataInfo.get("LanguageCode", "en_US")
+                                                 .asString("en_US")
+                                         )
+                                       : item.getCustomName()
+        ));
+        packet.mPackedItems.emplace_back(DataItem::create(ActorDataIDs::NametagAlwaysShow, true));
+        packet.sendTo(player);
+        return true;
+    });
+}

@@ -2,9 +2,9 @@
     "name": "${pluginName}",
     "entry": "${pluginFile}",
     "type": "native",
-    "author": "author",
-    "description": "description",
-    "version": "0.0.0",
+    "author": "小小的子沐呀",
+    "description": "掉落物名字显示",
+    "version": "1.0.0",
     "dependencies": [
         {
             "name": "GMLIB"
