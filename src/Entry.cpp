@@ -3,30 +3,6 @@
 
 ll::Logger logger(PLUGIN_NAME);
 
-namespace ItemName_Tag {
-
-std::unique_ptr<ItemNameTag>& ItemNameTag::getInstance() {
-    static std::unique_ptr<ItemNameTag> instance;
-    return instance;
-}
-
-bool ItemNameTag::load() {
-    GMLIB::Mod::VanillaFix::setFixI18nEnabled();
-    return true;
-}
-
-bool ItemNameTag::enable() {
-    return true;
-}
-
-bool ItemNameTag::disable() {
-    return true;
-}
-
-} // namespace ItemName_Tag
-
-LL_REGISTER_PLUGIN(ItemName_Tag::ItemNameTag, ItemName_Tag::ItemNameTag::getInstance());
-
 LL_AUTO_TYPE_INSTANCE_HOOK(ACTickHook, ll::memory::HookPriority::Normal, ItemActor, &ItemActor::postNormalTick, void) {
     origin();
     auto item = this->item();
@@ -58,3 +34,28 @@ LL_AUTO_TYPE_INSTANCE_HOOK(ACTickHook, ll::memory::HookPriority::Normal, ItemAct
         return true;
     });
 }
+
+namespace ItemName_Tag {
+
+std::unique_ptr<ItemNameTag>& ItemNameTag::getInstance() {
+    static std::unique_ptr<ItemNameTag> instance;
+    return instance;
+}
+
+bool ItemNameTag::load() {
+    GMLIB::Mod::VanillaFix::setFixI18nEnabled();
+    return true;
+}
+
+bool ItemNameTag::enable() { return true; }
+
+bool ItemNameTag::disable() { return true; }
+
+bool ItemNameTag::unload() {
+    ll::memory::HookRegistrar<ACTickHook>().unhook();
+    return true;
+}
+
+} // namespace ItemName_Tag
+
+LL_REGISTER_PLUGIN(ItemName_Tag::ItemNameTag, ItemName_Tag::ItemNameTag::getInstance());

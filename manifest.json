@@ -4,7 +4,7 @@
     "type": "native",
     "author": "小小的子沐呀",
     "description": "掉落物名字显示",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "dependencies": [
         {
             "name": "GMLIB"

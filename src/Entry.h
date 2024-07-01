@@ -22,9 +22,8 @@ public:
     /// @return True if the plugin is disabled successfully.
     bool disable();
 
-    // TODO: Implement this method if you need to unload the plugin.
     // /// @return True if the plugin is unloaded successfully.
-    // bool unload();
+    bool unload();
 
 private:
     ll::plugin::NativePlugin& mSelf;
